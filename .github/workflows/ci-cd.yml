@@ -56,20 +56,15 @@ jobs:
         fi
         echo "Neo4j is up and running."
 
-    - name: Create the test db
-      run: |
-        echo "Creating test database..."
-        docker exec neo4j-service cypher-shell -u neo4j -p testpassword --file /var/lib/neo4j/import/cypher/createTestDb.cypher
-
-    - name: Stop the test db
+    - name: Stop the neo4j db
       run: |
         echo "Stopping test database..."
-        docker exec neo4j-service cypher-shell -u neo4j -p testpassword "STOP DATABASE test"
+        docker exec neo4j-service cypher-shell -u neo4j -p testpassword "STOP DATABASE neo4j"
 
-    - name: Load data dump to new test db with overwrite
+    - name: Load data dump to neo4j db with overwrite
       run: |
         echo "Loading data dump to test database with overwrite..."
-        docker exec neo4j-service neo4j-admin database load test --from-path=/var/lib/neo4j/import/ --overwrite-destination
+        docker exec neo4j-service neo4j-admin database load neo4j --from-path=/var/lib/neo4j/import/ --overwrite-destination
 
     - name: Restart Neo4j service
       run: |
