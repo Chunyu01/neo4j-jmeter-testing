@@ -69,12 +69,12 @@ jobs:
     - name: Load data dump to new test db with overwrite
       run: |
         echo "Loading data dump to test database with overwrite..."
-        docker exec neo4j-service neo4j-admin database load test --from-path=/var/lib/neo4j/import/ --overwrite-destination
+        docker exec neo4j-service neo4j-admin database load test --from-path=/var/lib/neo4j/import/ --overwrite
 
-    - name: Start the test db
+    - name: Use system database to start test db
       run: |
         echo "Starting test database..."
-        docker exec neo4j-service cypher-shell -u neo4j -p testpassword "START DATABASE test"
+        docker exec neo4j-service cypher-shell -u neo4j -p testpassword -d system "START DATABASE test"
 
     - name: Wait for test db to be online
       run: |
