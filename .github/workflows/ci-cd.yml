@@ -65,15 +65,15 @@ jobs:
       run: |
         docker exec neo4j-service cypher-shell -u neo4j -p testpassword --file /var/lib/neo4j/import/cypher/createTestDb.cypher
 
-    - name: Check if test db exists
+    - name: Check if test db is online
       run: |
-        echo "Checking if test database exists..."
-        RESULT=$(docker exec neo4j-service cypher-shell -u neo4j -p testpassword "SHOW DATABASES" | grep test || true)
-        if [ -z "$RESULT" ]; then
-          echo "Test database does not exist."
+        echo "Checking if test database is online..."
+        STATUS=$(docker exec neo4j-service cypher-shell -u neo4j -p testpassword "SHOW DATABASE test" | grep -E "online" || true)
+        if [ -z "$STATUS" ]; then
+          echo "Test database is not online."
           exit 1
         else
-          echo "Test database exists."
+          echo "Test database is online."
         fi
 
     - name: Access JMeter container and run tests
