@@ -28,10 +28,10 @@ jobs:
     - name: Fix permissions for Neo4j data directory
       run: |
         sudo mkdir -p ./neo4j/data ./neo4j/import ./neo4j/logs ./neo4j/plugins
-        sudo chown -R 1000:1000 ./neo4j/data
-        sudo chown -R 1000:1000 ./neo4j/import
-        sudo chown -R 1000:1000 ./neo4j/logs
-        sudo chown -R 1000:1000 ./neo4j/plugins
+        sudo chmod -R 777 ./neo4j/data
+        sudo chmod -R 777 ./neo4j/import
+        sudo chmod -R 777 ./neo4j/logs
+        sudo chmod -R 777 ./neo4j/plugins
 
     - name: Build and push Docker images
       run: |
