@@ -25,6 +25,13 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
+    - name: Fix permissions for Neo4j data directory
+      run: |
+        sudo chown -R 1000:1000 ./data
+        sudo chown -R 1000:1000 ./import
+        sudo chown -R 1000:1000 ./logs
+        sudo chown -R 1000:1000 ./plugins
+
     - name: Build and push Docker images
       run: |
         docker buildx build --platform linux/amd64 -t ${{ secrets.DOCKER_USERNAME }}/my-image:latest --push .
@@ -32,10 +39,6 @@ jobs:
     - name: Start Docker Compose services
       run: |
         docker-compose up -d
-
-    - name: Fix permissions for Neo4j data directory
-      run: |
-        docker exec neo4j-service chown -R neo4j:neo4j /var/lib/neo4j/data /var/lib/neo4j/import /var/lib/neo4j/logs /var/lib/neo4j/plugins
 
     - name: Wait for Neo4j to be ready
       run: |
@@ -65,10 +68,10 @@ jobs:
     - name: Wait for test db to be online
       run: |
         echo "Waiting for test database to be online..."
-        RETRIES=20
+        RETRIES=10
         until docker exec neo4j-service cypher-shell -u neo4j -p testpassword "SHOW DATABASE test YIELD name, currentStatus" | grep -E "online" || [ $RETRIES -eq 0 ]; do
           echo "Waiting for test database to be online, $((RETRIES--)) remaining attempts..."
-          sleep 15
+          sleep 10
         done
 
         if [ $RETRIES -eq 0 ]; then
