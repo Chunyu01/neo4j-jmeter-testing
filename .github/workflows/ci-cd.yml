@@ -65,9 +65,9 @@ jobs:
       run: |
         echo "Loading data dump to test database with overwrite..."
         docker exec neo4j-service neo4j-admin database load neo4j --from-path=/var/lib/neo4j/import/ --overwrite-destination
-        docker exec  neo4j-service bin/neo4j restart
+        docker-compose restart neo4j
 
-    - name: Wait for Neo4j to be ready after restart
+    - name: Wait for Neo4j to be ready after start
       run: |
         echo "Waiting for Neo4j to be ready after restart..."
         RETRIES=2
