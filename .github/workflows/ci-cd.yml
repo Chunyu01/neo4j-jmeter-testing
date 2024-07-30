@@ -41,47 +41,10 @@ jobs:
       run: |
         docker-compose up -d
 
-    - name: Wait for Neo4j to be ready
-      run: |
-        echo "Waiting for Neo4j to be ready..."
-        RETRIES=20
-        until docker exec neo4j-service cypher-shell -u neo4j -p testpassword "RETURN 1" > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
-          echo "Waiting for Neo4j to start, $((RETRIES--)) remaining attempts..."
-          sleep 15
-        done
-
-        if [ $RETRIES -eq 0 ]; then
-          echo "Neo4j did not start in time"
-          exit 1
-        fi
-        echo "Neo4j is up and running."
-
-    - name: Stop the neo4j db
-      run: |
-        echo "Stopping test database..."
-        docker exec neo4j-service cypher-shell -u neo4j -p testpassword "STOP DATABASE neo4j"
-
+    
     - name: Load data dump to neo4j db with overwrite
       run: |
-        echo "Loading data dump to test database with overwrite..."
         docker exec neo4j-service neo4j-admin database load neo4j --from-path=/var/lib/neo4j/import/ --overwrite-destination
-        docker-compose restart neo4j
-
-    - name: Wait for Neo4j to be ready after start
-      run: |
-        echo "Waiting for Neo4j to restart..."
-        for i in {1..12}; do
-          if curl -s http://localhost:7474; then
-            echo "Neo4j is ready!"
-            exit 0
-          else
-            echo "Still waiting..."
-            sleep 5
-          fi
-        done
-        echo "Neo4j did not start in time" >&2
-        docker-compose logs neo4j >&2
-        exit 1
 
     - name: Run JMeter tests
       run: |
