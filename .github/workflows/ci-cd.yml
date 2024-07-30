@@ -33,11 +33,6 @@ jobs:
       run: |
         docker-compose up -d
 
-    - name: List running Docker containers
-      run: |
-        echo "Listing running Docker containers..."
-        docker ps
-
     - name: Wait for Neo4j to be ready
       run: |
         echo "Waiting for Neo4j to be ready..."
@@ -46,56 +41,59 @@ jobs:
           echo "Waiting for Neo4j to start, $((RETRIES--)) remaining attempts..."
           sleep 10
         done
+
         if [ $RETRIES -eq 0 ]; then
           echo "Neo4j did not start in time"
           exit 1
         fi
         echo "Neo4j is up and running."
 
-    - name: Check Neo4j service logs
-      run: |
-        echo "Checking Neo4j service logs..."
-        docker logs neo4j-service
-
     - name: Load data dump to new test db
       run: |
+        echo "Loading data dump to test database..."
         docker exec neo4j-service neo4j-admin database load test --from-path=/var/lib/neo4j/import/
 
     - name: Create the test db
       run: |
+        echo "Creating test database..."
         docker exec neo4j-service cypher-shell -u neo4j -p testpassword --file /var/lib/neo4j/import/cypher/createTestDb.cypher
 
-    - name: Check if test db is online
+    - name: Wait for test db to be online
       run: |
-        echo "Checking if test database is online..."
-        STATUS=$(docker exec neo4j-service cypher-shell -u neo4j -p testpassword "SHOW DATABASE test" | grep -E "online" || true)
-        if [ -z "$STATUS" ]; then
-          echo "Test database is not online."
-          exit 1
-        else
-          echo "Test database is online."
-        fi
+        echo "Waiting for test database to be online..."
+        RETRIES=10
+        until docker exec neo4j-service cypher-shell -u neo4j -p testpassword "SHOW DATABASE test" | grep -E "online" || [ $RETRIES -eq 0 ]; do
+          echo "Waiting for test database to be online, $((RETRIES--)) remaining attempts..."
+          sleep 10
+        done
 
-    - name: Access JMeter container and run tests
+        if [ $RETRIES -eq 0 ]; then
+          echo "Test database did not come online in time"
+          exit 1
+        fi
+        echo "Test database is online."
+
+    - name: Run JMeter tests
       run: |
         JMETER_CONTAINER_NAME="jmeter-service"
         if [ -z "$(docker ps --filter "name=$JMETER_CONTAINER_NAME" --format "{{.Names}}")" ]; then
           echo "JMeter container not found. Please check the docker-compose.yml file."
           exit 1
         fi
+
         echo "Accessing JMeter container..."
         docker exec $JMETER_CONTAINER_NAME sh -c "
-        cd /jmeter || { echo 'JMeter directory not found.'; exit 1; }
-        timestamp=\$(date +\"%Y%m%d_%H%M%S\")
-        mkdir -p ./report
-        report_file=\"./report/test_results_\${timestamp}.jtl\"
-        echo 'Running JMeter test plan...'
-        jmeter -n -t movies_test_plan.jmx -l \${report_file}
-        if [ \$? -ne 0 ]; then
-          echo 'Failed to run JMeter test plan.'
-          exit 1
-        fi
-        echo \"JMeter test completed successfully. Results saved to \${report_file}\"
+          cd /jmeter || { echo 'JMeter directory not found.'; exit 1; }
+          timestamp=\$(date +\"%Y%m%d_%H%M%S\")
+          mkdir -p ./report
+          report_file=\"./report/test_results_\${timestamp}.jtl\"
+          echo 'Running JMeter test plan...'
+          jmeter -n -t movies_test_plan.jmx -l \${report_file}
+          if [ \$? -ne 0 ]; then
+            echo 'Failed to run JMeter test plan.'
+            exit 1
+          fi
+          echo \"JMeter test completed successfully. Results saved to \${report_file}\"
         "
 
     - name: Copy JMeter test results to host
