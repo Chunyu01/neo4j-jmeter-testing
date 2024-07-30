@@ -41,22 +41,22 @@ jobs:
       run: |
         docker-compose up -d
 
-
-    - name: Wait for Neo4j to be ready after start
+    - name: Wait for Neo4j to be ready
       run: |
-        echo "Waiting for Neo4j to restart..."
-        for i in {1..12}; do
-          if curl -s http://localhost:7474; then
-            echo "Neo4j is ready!"
-            exit 0
-          else
-            echo "Still waiting..."
-            sleep 5
-          fi
+        echo "Waiting for Neo4j to be ready..."
+        RETRIES=20
+        until docker exec neo4j-service cypher-shell -u neo4j -p testpassword "RETURN 1" > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
+          echo "Waiting for Neo4j to start, $((RETRIES--)) remaining attempts..."
+          sleep 15
         done
-        echo "Neo4j did not start in time" >&2
-        docker-compose logs neo4j >&2
-        exit 1
+
+        if [ $RETRIES -eq 0 ]; then
+          echo "Neo4j did not start in time"
+          exit 1
+        fi
+        echo "Neo4j is up and running."
+
+   
 
     - name: Run JMeter tests
       run: |
