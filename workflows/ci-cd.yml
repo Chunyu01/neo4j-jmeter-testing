@@ -1,0 +1,60 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME}}
+        password: ${{ secrets.DOCKER_PASSWORD}}
+
+    - name: Build and push Docker images
+      run: |
+        docker-compose up -d
+
+    - name: Load data dump to new test db
+      run: |
+        docker exec --interactive --tty neo4j-service neo4j-admin database load test --from-path=/var/lib/neo4j/import/
+
+    - name: Create the test db
+      run: |
+        docker exec --interactive --tty neo4j-service cypher-shell -u neo4j -p testpassword --file /var/lib/neo4j/import/cypher/createTestDb.cypher
+
+    - name: Access JMeter container and run tests
+      run: |
+        JMETER_CONTAINER_NAME="jmeter-service"
+        if [ -z "$(docker ps --filter "name=$JMETER_CONTAINER_NAME" --format "{{.Names}}")" ]; then
+          echo "JMeter container not found. Please check the docker-compose.yml file."
+          exit 1
+        fi
+        echo "Accessing JMeter container..."
+        docker exec $JMETER_CONTAINER_NAME sh -c "
+        cd /jmeter || { echo 'JMeter directory not found.'; exit 1; }
+        timestamp=\$(date +\"%Y%m%d_%H%M%S\")
+        mkdir -p ./report
+        report_file=\"./report/test_results_\${timestamp}.jtl\"
+        echo 'Running JMeter test plan...'
+        jmeter -n -t movies_test_plan.jmx -l \${report_file}
+        if [ \$? -ne 0 ]; then
+          echo 'Failed to run JMeter test plan.'
+          exit 1
+        fi
+        echo \"JMeter test completed successfully. Results saved to \${report_file}\"
+        "
