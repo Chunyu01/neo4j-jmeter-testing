@@ -58,15 +58,15 @@ jobs:
 
     - name: Stop Neo4j container
       run: |
-        docker-compose stop neo4j-service
+        docker stop neo4j-service
 
     - name: Load data dump into Neo4j
       run: |
-        docker-compose run neo4j-service neo4j-admin load --from=/var/lib/neo4j/import/ --database=neo4j --force
+        docker run neo4j-service neo4j-admin load --from=/var/lib/neo4j/import/ --database=neo4j --force
 
     - name: Restart Neo4j container
       run: |
-        docker-compose start neo4j-service
+        docker start neo4j-service
 
     - name: Wait for Neo4j to be ready
       run: |
