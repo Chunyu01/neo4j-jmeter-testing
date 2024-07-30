@@ -31,11 +31,11 @@ jobs:
 
     - name: Load data dump to new test db
       run: |
-        docker exec --interactive --tty neo4j-service neo4j-admin database load test --from-path=/var/lib/neo4j/import/
+        docker exec neo4j-service neo4j-admin database load test --from-path=/var/lib/neo4j/import/
 
     - name: Create the test db
       run: |
-        docker exec --interactive --tty neo4j-service cypher-shell -u neo4j -p testpassword --file /var/lib/neo4j/import/cypher/createTestDb.cypher
+        docker exec neo4j-service cypher-shell -u neo4j -p testpassword --file /var/lib/neo4j/import/cypher/createTestDb.cypher
 
     - name: Access JMeter container and run tests
       run: |
