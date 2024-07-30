@@ -52,6 +52,11 @@ jobs:
         fi
         echo "Neo4j is up and running."
 
+    - name: Check Neo4j service logs
+      run: |
+        echo "Checking Neo4j service logs..."
+        docker logs neo4j-service
+
     - name: Load data dump to new test db
       run: |
         docker exec neo4j-service neo4j-admin database load test --from-path=/var/lib/neo4j/import/
@@ -59,6 +64,17 @@ jobs:
     - name: Create the test db
       run: |
         docker exec neo4j-service cypher-shell -u neo4j -p testpassword --file /var/lib/neo4j/import/cypher/createTestDb.cypher
+
+    - name: Check if test db exists
+      run: |
+        echo "Checking if test database exists..."
+        RESULT=$(docker exec neo4j-service cypher-shell -u neo4j -p testpassword "SHOW DATABASES" | grep test || true)
+        if [ -z "$RESULT" ]; then
+          echo "Test database does not exist."
+          exit 1
+        else
+          echo "Test database exists."
+        fi
 
     - name: Access JMeter container and run tests
       run: |
