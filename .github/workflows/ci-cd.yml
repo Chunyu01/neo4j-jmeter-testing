@@ -58,15 +58,15 @@ jobs:
 
     - name: Stop Neo4j container
       run: |
-        docker stop neo4j-service
+        docker-compose stop neo4j
 
     - name: Load data dump into Neo4j
       run: |
-        docker run neo4j-service neo4j-admin load --from=/var/lib/neo4j/import/ --database=neo4j --force
+        docker run --rm -v $(pwd)/neo4j/data:/data -v $(pwd)/neo4j/import:/var/lib/neo4j/import neo4j:latest neo4j-admin load --from=/var/lib/neo4j/import/neo4j.dump --database=neo4j --force
 
     - name: Restart Neo4j container
       run: |
-        docker start neo4j-service
+        docker-compose start neo4j
 
     - name: Wait for Neo4j to be ready
       run: |
@@ -82,8 +82,6 @@ jobs:
           exit 1
         fi
         echo "Neo4j is up and running."
-
-   
 
     - name: Run JMeter tests
       run: |
