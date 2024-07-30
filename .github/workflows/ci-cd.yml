@@ -42,10 +42,6 @@ jobs:
         docker-compose up -d
 
     
-    - name: Load data dump to neo4j db with overwrite
-      run: |
-        docker exec neo4j-service neo4j-admin database load neo4j --from-path=/var/lib/neo4j/import/ --overwrite-destination
-
     - name: Run JMeter tests
       run: |
         JMETER_CONTAINER_NAME="jmeter-service"

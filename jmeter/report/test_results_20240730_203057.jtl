@@ -1,0 +1,2 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1722371462121,273,Bolt Request,N/A,"org.neo4j.driver.exceptions.ServiceUnavailableException: Unable to connect to neo4j:7687, ensure the database is running and that there is a working network connection to it.",Thread Group 1-1,text,false,,117,0,1,1,null,0,0,0
