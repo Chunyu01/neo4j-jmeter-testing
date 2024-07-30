@@ -35,7 +35,7 @@ create_test_db() {
 wait_for_test_db() {
   echo "Waiting for test database to be online..."
   RETRIES=10
-  until docker exec neo4j-service cypher-shell -u neo4j -p testpassword "SHOW DATABASE test" | grep -E "online" || [ $RETRIES -eq 0 ]; do
+  until docker exec neo4j-service cypher-shell -u neo4j -p testpassword "SHOW DATABASE test YIELD name, currentStatus" | grep -E "online" || [ $RETRIES -eq 0 ]; do
     echo "Waiting for test database to be online, $((RETRIES--)) remaining attempts..."
     sleep 10
   done
