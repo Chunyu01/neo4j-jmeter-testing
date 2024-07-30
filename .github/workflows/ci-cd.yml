@@ -33,6 +33,11 @@ jobs:
       run: |
         docker-compose up -d
 
+    - name: List running Docker containers
+      run: |
+        echo "Listing running Docker containers..."
+        docker ps
+
     - name: Wait for Neo4j to be ready
       run: |
         echo "Waiting for Neo4j to be ready..."
@@ -76,3 +81,24 @@ jobs:
         fi
         echo \"JMeter test completed successfully. Results saved to \${report_file}\"
         "
+
+    - name: Copy JMeter test results to host
+      run: |
+        JMETER_CONTAINER_NAME="jmeter-service"
+        if [ -z "$(docker ps --filter "name=$JMETER_CONTAINER_NAME" --format "{{.Names}}")" ]; then
+          echo "JMeter container not found. Please check the docker-compose.yml file."
+          exit 1
+        fi
+        echo "Copying JMeter test results to host..."
+        docker cp $JMETER_CONTAINER_NAME:/jmeter/report ./jmeter-report
+
+    - name: List contents of jmeter-report directory
+      run: |
+        echo "Listing contents of jmeter-report directory..."
+        ls -l ./jmeter-report
+
+    - name: Upload JMeter test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: jmeter-test-results
+        path: ./jmeter-report
