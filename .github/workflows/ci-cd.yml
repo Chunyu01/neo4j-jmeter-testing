@@ -41,7 +41,23 @@ jobs:
       run: |
         docker-compose up -d
 
-    
+
+    - name: Wait for Neo4j to be ready after start
+      run: |
+        echo "Waiting for Neo4j to restart..."
+        for i in {1..12}; do
+          if curl -s http://localhost:7474; then
+            echo "Neo4j is ready!"
+            exit 0
+          else
+            echo "Still waiting..."
+            sleep 5
+          fi
+        done
+        echo "Neo4j did not start in time" >&2
+        docker-compose logs neo4j >&2
+        exit 1
+
     - name: Run JMeter tests
       run: |
         JMETER_CONTAINER_NAME="jmeter-service"
