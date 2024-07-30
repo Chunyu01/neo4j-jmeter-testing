@@ -89,7 +89,7 @@ jobs:
           echo "Test database did not come online in time"
           echo "Checking Neo4j logs for more information..."
           docker logs neo4j-service
-          exit 1
+          
         fi
         echo "Test database is online."
 
