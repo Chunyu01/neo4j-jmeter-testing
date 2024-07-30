@@ -62,7 +62,7 @@ jobs:
 
     - name: Load data dump into Neo4j
       run: |
-        docker run --rm -v $(pwd)/neo4j/data:/data -v $(pwd)/neo4j/import:/var/lib/neo4j/import neo4j:latest neo4j-admin database load --from=/var/lib/neo4j/import/neo4j.dump neo4j --overwrite-destination
+        docker run --rm -v $(pwd)/neo4j/data:/data -v $(pwd)/neo4j/import:/var/lib/neo4j/import neo4j:latest neo4j-admin database load --from-path=/var/lib/neo4j/import/neo4j.dump neo4j --overwrite-destination
 
 
     - name: Restart Neo4j container
