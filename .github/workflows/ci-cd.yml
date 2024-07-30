@@ -74,7 +74,7 @@ jobs:
     - name: Restart Neo4j service
       run: |
         echo "Restarting Neo4j service..."
-        docker-compose restart neo4j-service
+        docker-compose restart neo4j
 
     - name: Wait for Neo4j to be ready after restart
       run: |
