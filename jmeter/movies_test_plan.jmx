@@ -23,7 +23,7 @@
           <stringProp name="params"></stringProp>
           <boolProp name="recordQueryResults">false</boolProp>
           <stringProp name="accessMode">READ</stringProp>
-          <stringProp name="database">test</stringProp>
+          <stringProp name="database">neo4j</stringProp>
           <intProp name="txTimeout">60</intProp>
         </BoltSampler>
         <hashTree>
