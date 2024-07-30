@@ -79,6 +79,8 @@ The `run_jmeter_tests.sh` script includes detailed commands for each step. You c
 
 Configure your CI/CD pipeline to execute the `run_jmeter_tests.sh` script. Ensure the pipeline is set up to handle Docker commands and has the necessary permissions to start and interact with Docker containers.
 
+github workflows pipeline
+
 ## Viewing Test Results
 
 After the tests have run, you can find the test results in the `jmeter/report` directory. The results are saved with a timestamp to help you track the execution history.
