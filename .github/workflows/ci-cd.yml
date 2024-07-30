@@ -52,10 +52,15 @@ jobs:
         fi
         echo "Neo4j is up and running."
 
+    - name: Load data dump to new test db
+      run: |
+        echo "Loading data dump to test database..."
+        docker exec neo4j-service neo4j-admin database load test --from-path=/var/lib/neo4j/import/
+
     - name: Create the test db
       run: |
         echo "Creating test database..."
-        docker exec neo4j-service cypher-shell -u neo4j -p testpassword "CREATE DATABASE test;"
+        docker exec neo4j-service cypher-shell -u neo4j -p testpassword --file /var/lib/neo4j/import/cypher/createTestDb.cypher
 
     - name: Wait for test db to be online
       run: |
@@ -73,11 +78,6 @@ jobs:
           exit 1
         fi
         echo "Test database is online."
-
-    - name: Load data dump to new test db
-      run: |
-        echo "Loading data dump to test database..."
-        docker exec neo4j-service neo4j-admin database load test --from-path=/var/lib/neo4j/import/
 
     - name: Run JMeter tests
       run: |
