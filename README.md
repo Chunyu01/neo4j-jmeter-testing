@@ -1,8 +1,6 @@
 # Integration Testing with JMeter and Neo4j in a Docker Environment
 
 **Document Author:** Chunyu Wilson (Neo4j)
-**Date:** July 23,2024 
-**Version:** 1.0
 
 ## Overview
 
@@ -48,35 +46,26 @@ Ensure your `docker-compose.yml` file is correctly configured to define the serv
 
 Place your JMeter test plan (`movies_test_plan.jmx`) in the `jmeter` directory. This test plan should define the interactions with your Neo4j database.
 
-### 3. Write the Cypher Script
-
-Create a Cypher script (`createTestDb.cypher`) in the `neo4j/import` directory. This script should contain the necessary commands to set up your test database schema and data.
-
-### 4. Run the Integration Tests
+### 3. Run the Integration Tests
 
 Execute the `run_jmeter_tests.sh` script to start the integration testing process. This script performs the following steps:
 
-- Starts the Docker services defined in `docker-compose.yml`.
-- Loads the data dump into the new test database.
-- Creates the test database using the Cypher script.
-- Accesses the JMeter container and runs the JMeter test plan, saving the results in the `jmeter/report` directory.
-  
-### 5.Using an External Cypher Query File in JMeter
+1. **Start the Docker Services**: Uses `docker-compose up -d` to start the defined services.
+2. **Wait for Neo4j to be Ready**: Waits until the Neo4j service is fully operational.
+3. **Stop the Neo4j Database**: Stops the Neo4j database using Cypher shell.
+4. **Load Data Dump**: Loads the data dump into Neo4j using `neo4j-admin`.
+5. **Start the Neo4j Database**: Starts the Neo4j database using Cypher shell.
+6. **Wait for the Test Database to be Online**: Ensures the test database is online before running tests.
+7. **Run JMeter Test Plan**: Accesses the JMeter container, runs the test plan, and saves the results with a timestamp.
+   
+### 4.Using an External Cypher Query File in JMeter
+
 To use an external Cypher query file in your JMeter Test Plan, follow these steps:
 
 - Ensure the external Cypher query file (e.g., query.cypher) is accessible from the machine where JMeter is running.
 - In the test plan file, use the function `${__FileToString(query.cypher,,)}` to read the content of the Cypher query file.
 - Ensure the path to the Cypher query file is correct. If the file is in the same directory as the JMeter test plan, you can use just the file name. Otherwise, provide the full path.
 
-## Script Details
-The `run_jmeter_tests.sh` script includes detailed commands for each step. You can find the script [here](./run_jmeter_tests.sh).
-
-### Summary of Steps
-
-1. **Start the Docker Services:** Uses `docker-compose up -d` to start the defined services.
-2. **Load Data Dump:** Loads the data dump into a new test database.
-3. **Create Test Database:** Runs the Cypher script to set up the test database.
-4. **Run JMeter Test Plan:** Accesses the JMeter container and executes the test plan, saving the results with a timestamp.
 
 ## Running the Tests in CI/CD
 
@@ -88,7 +77,23 @@ The shell script starts the Neo4j database and creates the test database by usin
 
 ### GitHub Workflow Pipeline
 
-The CI/CD pipeline, defined in the `ci-cd.yml` file, automates the process of building and testing your Neo4j database with JMeter. It checks out the repository, sets up Docker Buildx, logs in to Docker Hub, builds and pushes Docker images, starts Docker Compose services, waits for Neo4j to be ready, downloads the Neo4j data dump, loads the data dump into Neo4j, restarts the Neo4j container, waits for Neo4j to be ready again, runs JMeter tests, copies JMeter test results to the host, lists the contents of the JMeter report directory, and uploads the JMeter test results as an artifact.
+The CI/CD pipeline, defined in the `ci-cd.yml` file, automates the process of building and testing your Neo4j database with JMeter. It includes:
+
+1. **Checking out the repository**.
+2. **Setting up Docker Buildx**.
+3. **Logging in to Docker Hub**.
+4. **Building and pushing Docker images**.
+5. **Starting Docker Compose services**.
+6. **Waiting for Neo4j to be ready**.
+7. **Downloading the Neo4j data dump**.
+8. **Loading the data dump into Neo4j**.
+9. **Restarting the Neo4j container**.
+10. **Waiting for Neo4j to be ready again**.
+11. **Running JMeter tests**.
+12. **Copying JMeter test results to the host**.
+13. **Listing the contents of the JMeter report directory**.
+14. **Uploading the JMeter test results as an artifact**.
+
 
 ## Viewing Test Results
 
