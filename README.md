@@ -18,20 +18,22 @@ This guide provides detailed instructions on how to use a Docker container for r
 The project directory should have the following structure:
 
 ```plaintext
-jMeterTest
-├── jmeter
-│   ├── report
-│   │   └── test_results_YYYYMMDD_HHMMSS.jtl
+JMeterTest/
+├── .github/
+│   └── workflows/
+│       └── ci-cd.yml
+├── jmeter/
+│   ├── report/
 │   ├── jmeter.log
-│   └── movies_test_plan.jmx
+│   ├── movies_test_plan.jmx
 │   └── query.cypher
-├── neo4j
-│   ├── data
-│   ├── import
-│   │   └── createTestDb.cypher
-│   └── log
+├── neo4j/
+│   ├── data/
+│   │   └── import/
+│   └── neo4j.dump
 ├── docker-compose.yml
 ├── Dockerfile
+├── README.md
 └── run_jmeter_tests.sh
 ```
 
