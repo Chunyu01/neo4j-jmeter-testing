@@ -30,11 +30,12 @@ JMeterTest/
 ├── neo4j/
 │   ├── data/
 │   │   └── import/
-│   └── neo4j.dump
+│   │       └── neo4j.dump
 ├── docker-compose.yml
 ├── Dockerfile
 ├── README.md
 └── run_jmeter_tests.sh
+
 ```
 
 ## Step-by-Step Instructions
