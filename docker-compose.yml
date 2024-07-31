@@ -3,7 +3,7 @@ networks:
   lan:
 services:
   neo4j:
-    image: neo4j:5.21.0-enterprise
+    image: neo4j:latest
     container_name: neo4j-service
     hostname: neo4j
     ports:

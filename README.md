@@ -77,9 +77,15 @@ The `run_jmeter_tests.sh` script includes detailed commands for each step. You c
 
 ## Running the Tests in CI/CD
 
+### Shell Script
+
 Configure your CI/CD pipeline to execute the `run_jmeter_tests.sh` script. Ensure the pipeline is set up to handle Docker commands and has the necessary permissions to start and interact with Docker containers.
 
-github workflows pipeline
+The shell script starts the Neo4j database and creates the test database by using Docker Compose to bring up the Neo4j service, waiting for it to be ready, and then running a Cypher script to set up the database schema and data. The script ensures that the Neo4j instance is fully operational before proceeding with the database setup.
+
+### GitHub Workflow Pipeline
+
+The CI/CD pipeline, defined in the `ci-cd.yml` file, automates the process of building and testing your Neo4j database with JMeter. It checks out the repository, sets up Docker Buildx, logs in to Docker Hub, builds and pushes Docker images, starts Docker Compose services, waits for Neo4j to be ready, downloads the Neo4j data dump, loads the data dump into Neo4j, restarts the Neo4j container, waits for Neo4j to be ready again, runs JMeter tests, copies JMeter test results to the host, lists the contents of the JMeter report directory, and uploads the JMeter test results as an artifact.
 
 ## Viewing Test Results
 

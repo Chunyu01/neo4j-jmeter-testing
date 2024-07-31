@@ -19,23 +19,30 @@ wait_for_neo4j() {
   echo "Neo4j is up and running."
 }
 
-# Function to load the data dump to the new test db
+# Function to stop the neo4j db
+stop_neo4j_db() {
+  echo "Stoping database..."
+  docker exec neo4j-service cypher-shell -u neo4j -p testpassword -d system "STOP DATABASE neo4j"
+}
+
+
+# Function to load the data dump to neo4j db
 load_data_dump() {
-  echo "Loading data dump to test database..."
-  docker exec neo4j-service neo4j-admin database load test --from-path=/var/lib/neo4j/import/
+  echo "Loading data dump to neo4j database..."
+  docker exec neo4j-service neo4j-admin database load neo4j --from-path=/var/lib/neo4j/import/ --overwrite-destination=true
 }
 
-# Function to create the test db
-create_test_db() {
-  echo "Creating test database..."
-  docker exec neo4j-service cypher-shell -u neo4j -p testpassword --file /var/lib/neo4j/import/cypher/createTestDb.cypher
+# Function to start the neo4j db
+start_neo4j_db() {
+  echo "Starting neo4j database..."
+  docker exec neo4j-service cypher-shell -u neo4j -p testpassword -d system "START DATABASE neo4j"
 }
 
-# Function to wait for the test db to be online
+# Function to wait for the neo4j db to be online
 wait_for_test_db() {
   echo "Waiting for test database to be online..."
   RETRIES=10
-  until docker exec neo4j-service cypher-shell -u neo4j -p testpassword "SHOW DATABASE test YIELD name, currentStatus" | grep -E "online" || [ $RETRIES -eq 0 ]; do
+  until docker exec neo4j-service cypher-shell -u neo4j -p testpassword "SHOW DATABASE neo4j YIELD name, currentStatus" | grep -E "online" || [ $RETRIES -eq 0 ]; do
     echo "Waiting for test database to be online, $((RETRIES--)) remaining attempts..."
     sleep 10
   done
@@ -83,7 +90,8 @@ run_jmeter_tests() {
 
 # Main script execution
 wait_for_neo4j
+stop_neo4j_db
 load_data_dump
-create_test_db
+start_neo4j_db
 wait_for_test_db
 run_jmeter_tests
