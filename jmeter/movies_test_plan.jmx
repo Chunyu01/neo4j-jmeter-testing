@@ -28,7 +28,7 @@
         </BoltSampler>
         <hashTree>
           <BoltConnectionElement guiclass="TestBeanGUI" testclass="BoltConnectionElement" testname="Bolt Connection Configuration">
-            <stringProp name="boltUri">bolt://neo4j:7687</stringProp>
+            <stringProp name="boltUri">neo4j://neo4j:7687</stringProp>
             <stringProp name="username">neo4j</stringProp>
             <stringProp name="password">testpassword</stringProp>
             <intProp name="maxConnectionPoolSize">100</intProp>
